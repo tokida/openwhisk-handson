@@ -86,9 +86,9 @@ Actionは、他のActionまたはActionの定義された配列(sequence)から�
   Activation IDは、将来の時点での呼び出しのログや結果を取得するために使用することができます。
 
 
-5. If you don't need the action result right away, you can omit the `--blocking`
-   flag to make a non-blocking invocation. You can get the result later by using
-   the activation ID. See the following example:
+5. すぐにアクションの結果を必要としない場合は、ノンブロッキング呼び出しを行うために`--blocking`
+   フラグを省略することができます。アクティベーションIDを使用して後で結果を得ることができます。
+   次の例を参照してください
 
   ```
   $ wsk action invoke hello
@@ -106,9 +106,9 @@ Actionは、他のActionまたはActionの定義された配列(sequence)から�
   }
   ```
 
-6. If you forget to record the activation ID, you can get a list of activations
-   ordered from the most recent to the oldest. Run the following command to get
-   a list of your activations:
+6. もしアクティベーションIDがを忘れてしまった場合、新しいものから順に順序付けられた
+   アクティベーションIDのリストを取得することができます。あなたのアクティベーションのリストを
+   取得するには、次のコマンドを実行します。
 
   ```
   $ wsk activation list
@@ -118,13 +118,13 @@ Actionは、他のActionまたはActionの定義された配列(sequence)から�
   44794bd6aab74415b4e42a308d880e5b         hello
   6bf1f670ee614a7eb5af3c9fde813043         hello
   ```
-### Creating asynchronous actions
 
-JavaScript functions that run asynchronously may need to return the activation
-result after the `main` function has returned. You can accomplish this by
-returning a Promise in your action.
+### 非同期アクションの作成
 
-1. Save the following content in a file called `asyncAction.js`.
+非同期に実行するJavaScript関数は、main関数が戻った後に動いた結果を返す必要があります。あなた
+のアクションでプロミス(Promise)を返すことによって、これを達成することができます。
+
+1. `asyncAction.js`として次の内容を保管します。
 
   ```
   function main(args) {
@@ -136,21 +136,33 @@ returning a Promise in your action.
   }
 ```
 
+主な機能は活性化がまだ完了していないことを示していますが、将来的にすることが期待され、プロミスを
+返すことに注意してください。
+
 Notice that the `main` function returns a Promise, which indicates that the
 activation hasn't completed yet, but is expected to in the future.
+
+この場合のsetTimeout（）JavaScript関数は、コールバック関数を呼び出す前に20秒間待ちます。
+これは、非同期コードを表し、プロミスのコールバック関数内部に入ります。
 
 The `setTimeout()` JavaScript function in this case waits for twenty seconds
 before calling the callback function.  This represents the asynchronous code and
 goes inside the Promise's callback function.
 
+プロミスのコールバックは、両方のfunctionであるresolveとreject、2つの引数をとります。
+`resolve()`の呼び出しはプロミスを実現し、アクティベーションが正常に完了したことを示します。
+
 The Promise's callback takes two arguments, resolve and reject, which are both
 functions.  The call to `resolve()` fulfills the Promise and indicates that the
 activation has completed normally.
 
+`reject()`の呼び出しはプロミスを拒否し、アクティベーションが異常終了したことを通知するため
+に使用することができます。
+
 A call to `reject()` can be used to reject the Promise and signal that the
 activation has completed abnormally.
 
-2. Run the following commands to create the action and invoke it:
+1. Actioを作成し実行するコマンドは以下のとおりです。
 
   ```
   $ wsk action create asyncAction asyncAction.js
@@ -164,9 +176,9 @@ activation has completed abnormally.
   }
   ```
 
-  Notice that you performed a blocking invocation of an asynchronous action.
+  非同期アクションのブロッキング呼び出しを行っていることに注意して下さい。
 
-3. Fetch the activation log to see how long the activation took to complete:
+3. アクティベーションが完了するまでにかかった時間を確認するためにアクティベーションログを取得します。
 
   ```
   $ wsk activation list --limit 1 asyncAction
@@ -188,18 +200,18 @@ activation has completed abnormally.
   }
   ```
 
-  Comparing the `start` and `end` time stamps in the activation record, you can
-  see that this activation took slightly over two seconds to complete.
+  起動レコードで`start`と`end`のタイムスタンプを比較すると、あなたは、このアクティベーションが
+  完了するまでに2秒以上かかったことがわかります。
 
-### Using actions to call an external API
+### 外部APIの呼び出しをアクションから使う
 
-The examples so far have been self-contained JavaScript functions. You can also
-create an action that calls an external API.
+例としては、これまでの自己完結型のJavaScript関数となっています。また、外部APIを呼び出すアク
+ションを作成することができます。
 
-This example invokes a Yahoo Weather service to get the current conditions at a
-specific location.
+この例では、特定の場所に現在の状態を取得するにはYahoo天気サービスを起動します。
 
-1. Save the following content in a file called `weather.js`.
+
+1. `weather.js`として次の内容を保管します。
 
   ```
   var request = require('request');
@@ -225,18 +237,14 @@ specific location.
   }
   ```
 
-Note that the action in the example uses the JavaScript `request` library to
-make an HTTP request to the Yahoo Weather API, and extracts fields from the JSON
-result. The [References](./reference.md#javascript-runtime-environments) detail
-the Node.js packages that you can use in your actions.
 
-This example also shows the need for asynchronous actions. The action returns a
-Promise to indicate that the result of this action is not available yet when the
-function returns. Instead, the result is available in the `request` callback
-after the HTTP call completes, and is passed as an argument to the `resolve()`
-function.
 
-2. Run the following commands to create the action and invoke it:
+この例では、アクションは JavaScript request ライブラリーを使用して Yahoo Weather API への HTTP 要求を行い、JSON 結果からフィールドを抽出することに注意してください。リファレンスに、アクションで使用できる Node.js パッケージについての詳しい説明が記載されています。
+
+この例は、非同期アクションの必要性も示しています。アクションは Promise を戻して、関数が戻ったときにこのアクションの結果はまだ使用可能になっていないことを示します。代わりに、結果は、HTTP 呼び出しが完了した後に request コールバックで使用可能になり、引数として resolve() 関数に渡されます。
+
+
+2. 以下のコマンドを実行して、アクションを作成して起動します。
 
   ```
   $ wsk action create weather weather.js
