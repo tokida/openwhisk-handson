@@ -139,28 +139,16 @@ Actionは、他のActionまたはActionの定義された配列(sequence)から�
 主な機能は活性化がまだ完了していないことを示していますが、将来的にすることが期待され、プロミスを
 返すことに注意してください。
 
-Notice that the `main` function returns a Promise, which indicates that the
-activation hasn't completed yet, but is expected to in the future.
-
 この場合のsetTimeout（）JavaScript関数は、コールバック関数を呼び出す前に20秒間待ちます。
 これは、非同期コードを表し、プロミスのコールバック関数内部に入ります。
-
-The `setTimeout()` JavaScript function in this case waits for twenty seconds
-before calling the callback function.  This represents the asynchronous code and
-goes inside the Promise's callback function.
 
 プロミスのコールバックは、両方のfunctionであるresolveとreject、2つの引数をとります。
 `resolve()`の呼び出しはプロミスを実現し、アクティベーションが正常に完了したことを示します。
 
-The Promise's callback takes two arguments, resolve and reject, which are both
-functions.  The call to `resolve()` fulfills the Promise and indicates that the
-activation has completed normally.
 
 `reject()`の呼び出しはプロミスを拒否し、アクティベーションが異常終了したことを通知するため
 に使用することができます。
 
-A call to `reject()` can be used to reject the Promise and signal that the
-activation has completed abnormally.
 
 1. Actioを作成し実行するコマンドは以下のとおりです。
 
